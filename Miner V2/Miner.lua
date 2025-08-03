@@ -139,9 +139,17 @@ function Miner:dig(xSize, ySize, zSize)
     self:log("Starting dig", dim.x, dim.y, dim.z)
 
     local function getVerticalStep(currY)
-        local remaining = dim.y - currY - 1
+        local remaining = dim.y - currY
+        if not self.config.fillWalls then
+            remaining = remaining - 1
+        end
+        
         local step = math.min(self.config.maxStepY, remaining)
-        return self.config.fillWalls and 1 or step
+        if self.config.fillWalls then
+            return remaining > 0 and 1 or 0
+        else
+            return yDir * step
+        end
     end
 
     local function isAtYBorder()
