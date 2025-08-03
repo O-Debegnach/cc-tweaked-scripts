@@ -139,11 +139,29 @@ function TurtleController:restoreRotation()
     end
 end
 
-function TurtleController:setRotation(rotation)
-    while self.rotation ~= rotation do
+function TurtleController:setRotation(targetRotation)
+    local diff = (targetRotation - self.rotation) % 4
+
+    if diff == 0 then
+        return  -- Ya está en la rotación deseada
+    elseif diff == 1 then
         turtle.turnRight()
         self.rotation = (self.rotation + 1) % 4
+    elseif diff == 2 then
+        -- Puede girar a derecha dos veces o izquierda dos veces; elegimos derecha
+        turtle.turnRight()
+        turtle.turnRight()
+        self.rotation = (self.rotation + 2) % 4
+    elseif diff == 3 then
+        turtle.turnLeft()
+        self.rotation = (self.rotation - 1) % 4
+        if self.rotation < 0 then self.rotation = self.rotation + 4 end
     end
+end
+
+
+function TurtleController:getRotation()
+    return self.rotation
 end
 
 function TurtleController:setMovementConfig(config)
@@ -215,12 +233,12 @@ function TurtleController:moveTo(x, y, z)
     local yDirection = y - self.currentPosition.y
     local zDirection = z - self.currentPosition.z
 
-    print("destination: x=" .. x .. ", y=" .. y .. ", z=" .. z)
-    print(
-        "current position: x=" ..
-            self.currentPosition.x .. ", y=" .. self.currentPosition.y .. ", z=" .. self.currentPosition.z
-    )
-    print("directions: x=" .. xDirection .. ", y=" .. yDirection .. ", z=" .. zDirection)
+    -- print("destination: x=" .. x .. ", y=" .. y .. ", z=" .. z)
+    -- print(
+    --     "current position: x=" ..
+    --         self.currentPosition.x .. ", y=" .. self.currentPosition.y .. ", z=" .. self.currentPosition.z
+    -- )
+    -- print("directions: x=" .. xDirection .. ", y=" .. yDirection .. ", z=" .. zDirection)
 
     return self:move(xDirection, yDirection, zDirection)
 end

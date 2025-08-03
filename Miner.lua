@@ -8,11 +8,9 @@ function Miner:new()
   self.turtleController = TurtleController:new()
   self.turtleController:setMovementConfig({breakBlocks = true})
 
-  self.storagePosition = {
-    x = 0,
-    y = 0,
-    z = 0
-  }
+  self.storagePosition = nil
+  
+  self.fillWalls = false
   return self
 end
 
@@ -113,7 +111,9 @@ function Miner:digCube(x, y, z)
     end
   end
 
-  self:dumpInventory()
+  if(self.storagePosition) then
+    self:dumpInventory()
+  end
   self.turtleController:goToBase()
   self.turtleController:setRotation(0);
   return true
