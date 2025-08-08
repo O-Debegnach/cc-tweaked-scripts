@@ -17,6 +17,8 @@ function Miner:new(config)
         maxStepY = config.maxStepY or 3,
         debug = config.debug or false
     }
+
+    print("Miner initialized with config:", self.config)
     return self
 end
 
@@ -79,10 +81,10 @@ function Miner:getWallDirections(pos, dim)
         table.insert(dirs, 0)
     end
     if pos.y == 0 then
-        table.insert(dirs, "down")
+        table.insert(dirs, dim.y > 0 and "down" or "up")
     end
-    if pos.y == dim.y - 1 then
-        table.insert(dirs, "up")
+    if pos.y == math.abs(dim.y) - 1 then
+        table.insert(dirs, dim.y > 0 and "up" or "down")
     end
     return dirs
 end
@@ -136,7 +138,7 @@ function Miner:dig(xSize, ySize, zSize)
     local xDir = (xSize >= 0) and 1 or -1
     local yDir = (ySize >= 0) and 1 or -1
     local zDir = (zSize >= 0) and 1 or -1
-    self:log("Starting dig", dim.x, dim.y, dim.z)
+    self:log("Starting dig", dim.x, dim.y, dim.z, self.config.direction)
 
     local function getVerticalStep(currY)
         local remaining = dim.y - currY
@@ -144,11 +146,11 @@ function Miner:dig(xSize, ySize, zSize)
             remaining = remaining - 1
         end
         
-        local step = math.min(self.config.maxStepY, remaining)
+        local step = math.min(remaining, self.config.maxStepY)
         if self.config.fillWalls then
             return remaining > 0 and 1 or 0
         else
-            return yDir * step
+            return step
         end
     end
 
@@ -176,13 +178,17 @@ function Miner:dig(xSize, ySize, zSize)
     end
 
     if self.config.direction == "vertical" then
-        for y = 0, dim.y - 1 do
+        local y = 1
+        while y <= dim.y do
             self:log("Excavating layer Y =", self.turtle.currentPosition.y)
-            local zForward = (y % 2 == 0) and 1 or -1
+            if (isAtYBorder() and math.abs(dim.y) > 2 and not self.config.fillWalls) then
+                self.turtle:move(0, 1 * yDir, 0)
+                y = y + 1
+            end
+
             for z = 0, dim.z - 1 do
-                local realZ = (zForward == 1) and z or (dim.z - 1 - z)
                 if z > 0 then
-                    self.turtle:move(0, 0, zForward)
+                    self.turtle:move(0, 0, zDir)
                 end
                 for x = 0, dim.x - 1 do
                     if self:isInventoryFull() then
@@ -193,17 +199,22 @@ function Miner:dig(xSize, ySize, zSize)
                     end
                     digCell()
                     if x < dim.x - 1 then
-                        self.turtle:move(((z + y) % 2 == 0) and xDir or -xDir, 0, 0)
+                        self.turtle:move(xDir, 0, 0)
                     end
                 end
+                xDir = -xDir
             end
-            if y < dim.y - 1 then
-                local _, currY, _ = self.turtle:getCurrentPosition()
-                local step = getVerticalStep(currY)
-                if step > 0 then
-                    self.turtle:move(0, step, 0)
-                end
+            zDir = -zDir
+
+            local step = getVerticalStep(y)
+            print("y: " .. y .. " DimY:" .. dim.y .. " step:" .. step)
+            y = y + step
+            if step > 0 then
+                self.turtle:move(0, step * yDir, 0)
+            else
+                break
             end
+
         end
     else
         local initY = 1
