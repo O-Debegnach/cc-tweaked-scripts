@@ -1,5 +1,8 @@
 {
   "Lua.diagnostics.globals": [
     "turtle"
+  ],
+  "Lua.workspace.library": [
+    "J:/Workspace/Minecraft/cc-tweaked-scripts/libs/lua-ls-cc-tweaked/library"
   ]
 }
