@@ -9,26 +9,13 @@ local main = basalt.getMainFrame()
   :initializeState('dimZ', "", true)
   :initializeState('direction', "horizontal", true)
   :initializeState('fillWalls', false, true)
+  :initializeState('fillRoof', false, true)
+  :initializeState('fillFloor', false, true)
   :initializeState('storX', "0", true)
   :initializeState('storY', "0", true)
   :initializeState('storZ', "-1", true)
 
 local finishedFrame = getFinishedFrame(main)
-
--- local errorFrame = basalt.createFrame():hide()
-
--- local errorLabel = errorFrame:addLabel():setText(""):setPosition(2, 3)
-
--- errorFrame:addButton():setText("Aceptar"):setPosition(6, 10):onClick(function()
--- 	errorFrame:hide()
--- 	main:show()
--- end)
-
--- local function showError(message)
--- 	errorLabel:setText("❌ " .. message)
--- 	main:hide()
--- 	errorFrame:show()
--- end
 
 main:addLabel()
   :setText("Dims:")
@@ -99,39 +86,70 @@ main:addCheckbox({
   }):bind("checked", "fillWalls")
   
 
+main:addLabel()
+    :setText("Rellenar piso?")
+    :setPosition(15, 6)
+main:addCheckbox({
+  x = 33,
+  y = 6,
+  text = "No",
+  checkedText = "Si",
+}):bind("checked", "fillFloor")
 
 main:addLabel()
-  :setText("Pos Almacenamiento:")
-  :setPosition(15, 6)
-main:addLabel()
+    :setText("Rellenar techo?")
+    :setPosition(15, 8)
+main:addCheckbox({
+  x = 33,
+  y = 8,
+  text = "No",
+  checkedText = "Si",
+}):bind("checked", "fillRoof")
+
+
+local storageSection = main:addFrame({
+  direction = "vertical",
+  spacing = 2,
+  x = 15,
+  y = 10,
+  width = 20,
+  background = colors.white,
+})
+
+storageSection:addLabel()
+  :setPosition(1, 1)
+  :setText("Almacenamiento:")
+
+
+storageSection:addLabel()
   :setText("X:")
-  :setPosition(15, 8)
-main:addInput({
-    width = 5,
-    x = 18,
-    y = 8,
+  :setPosition(1, 3)
+storageSection:addInput({
+    width = 3,
+    x = 3,
+    y = 3,
     text = "0"
   })
   :bind("text", "storX")
 
-main:addLabel()
+storageSection:addLabel()
   :setText("Y:")
-  :setPosition(15, 10)
-main:addInput({
-    width = 5,
-    x = 18,
-    y = 10,
+  :setPosition(7, 3)
+storageSection:addInput({
+    width = 3,
+    x = 9,
+    y = 3,
     text = "0"
   })
   :bind("text", "storY")
 
-main:addLabel()
+storageSection:addLabel()
   :setText("Z:")
-  :setPosition(15, 12)
-main:addInput({
-    width = 5,
-    x = 18,
-    y = 12,
+  :setPosition(13, 3)
+storageSection:addInput({
+    width = 3,
+    x = 15,
+    y = 3,
     text = "-1"
   })
   :bind("text", "storZ")
@@ -143,11 +161,13 @@ main:addButton()
   :onClick(function()
     local config = {
       fillWalls = main:getState("fillWalls"),
-	  direction = main:getState("direction"),
-	  maxStepY = 3,
-	  x = tonumber(main:getState("storX")) or 0,
-	  y = tonumber(main:getState("storY")) or 0,
-	  z = tonumber(main:getState("storZ")) or -1
+      fillRoof = main:getState("fillRoof"),
+      fillFloor = main:getState("fillFloor"),
+      direction = main:getState("direction"),
+      maxStepY = 3,
+      x = tonumber(main:getState("storX")) or 0,
+      y = tonumber(main:getState("storY")) or 0,
+      z = tonumber(main:getState("storZ")) or -1
     }
 
     local miner = Miner:new(config)

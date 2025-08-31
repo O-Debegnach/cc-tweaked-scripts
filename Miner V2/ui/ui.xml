@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<basalt>
+  <!-- Pantalla principal -->
+  <frame id="main" visible="true">
+    <label text="Configuración de Miner" x="2" y="1"/>
+
+    <checkbox id="fillWalls" text="Rellenar paredes (fillWalls)" x="2" y="3"/>
+
+    <label text="Dirección:" x="2" y="5"/>
+    <dropdown id="direction" x="13" y="5" width="14">
+      <item text="horizontal"/>
+      <item text="vertical"/>
+    </dropdown>
+
+    <label text="Paso vertical:" x="2" y="7"/>
+    <input id="maxStepY" x="17" y="7" width="5" inputType="number"/>
+
+    <label text="X:" x="2" y="9"/>
+    <input id="dimX" x="5" y="9" width="5" inputType="number"/>
+
+    <label text="Y:" x="12" y="9"/>
+    <input id="dimY" x="15" y="9" width="5" inputType="number"/>
+
+    <label text="Z:" x="22" y="9"/>
+    <input id="dimZ" x="25" y="9" width="5" inputType="number"/>
+
+    <label text="Storage X:" x="2" y="11"/>
+    <input id="storageX" x="13" y="11" width="5" inputType="number"/>
+
+    <label text="Storage Y:" x="2" y="12"/>
+    <input id="storageY" x="13" y="12" width="5" inputType="number"/>
+
+    <label text="Storage Z:" x="2" y="13"/>
+    <input id="storageZ" x="13" y="13" width="5" inputType="number"/>
+
+    <button id="startBtn" text="Comenzar" x="25" y="11"/>
+    <button id="logsBtn"  text="Ver logs" x="25" y="13"/>
+  </frame>
+
+  <!-- Pantalla de logs en vivo -->
+  <frame id="logs" visible="false">
+    <label text="Ejecución - Logs en tiempo real" x="2" y="1"/>
+    <display id="logDisplay" x="2" y="2" width="34" height="10" background="black" foreground="white"/>
+    <button id="logsBack" text="Volver" x="2" y="13"/>
+  </frame>
+
+  <!-- Modal de error -->
+  <frame id="error" visible="false">
+    <textbox id="errorText" x="2" y="2" width="28" height="5" wrap="true" background="black" foreground="red"/>
+    <button id="errorOk" text="Aceptar" x="6" y="8"/>
+  </frame>
+
+  <!-- Modal de finalización -->
+  <frame id="finished" visible="false">
+    <label text="✅ Excavación completada" x="5" y="3"/>
+    <button id="finishedOk" text="Aceptar" x="6" y="5"/>
+  </frame>
+</basalt>

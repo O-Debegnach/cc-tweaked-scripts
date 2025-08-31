@@ -12,6 +12,8 @@ function Miner:new(config)
     })
     self.config = {
         fillWalls = config.fillWalls or false,
+        fillRoof = config.fillRoof or false,
+        fillFloor = config.fillFloor or false,
         direction = config.direction or "horizontal", -- "vertical" o "horizontal"
         storagePosition = config.storagePosition or nil,
         maxStepY = config.maxStepY or 3,
@@ -68,31 +70,46 @@ end
 
 function Miner:getWallDirections(pos, dim)
     local dirs = {}
-    if pos.x == 0 then
-        table.insert(dirs, 3)
+
+    if self.config.fillWalls then
+        if pos.x == 0 then
+            table.insert(dirs, 3)
+        end
+        if pos.x == dim.x - 1 then
+            table.insert(dirs, 1)
+        end
+        if pos.z == 0 then
+            table.insert(dirs, 2)
+        end
+        if pos.z == dim.z - 1 then
+            table.insert(dirs, 0)
+        end
     end
-    if pos.x == dim.x - 1 then
-        table.insert(dirs, 1)
-    end
-    if pos.z == 0 then
-        table.insert(dirs, 2)
-    end
-    if pos.z == dim.z - 1 then
-        table.insert(dirs, 0)
-    end
-    if pos.y == 0 then
-        table.insert(dirs, dim.y > 0 and "down" or "up")
-    end
-    if pos.y == math.abs(dim.y) - 1 then
-        table.insert(dirs, dim.y > 0 and "up" or "down")
+
+    if dim.y > 0 then
+        if pos.y == 0 and self.config.fillFloor then
+            table.insert(dirs, "down")
+        end
+        if pos.y == math.abs(dim.y) - 1 and self.config.fillRoof then
+            table.insert(dirs, "up")
+        end
+    else
+        if pos.y == 0 and self.config.fillRoof then
+            table.insert(dirs, "up")
+        end
+        if pos.y == math.abs(dim.y) - 1 and self.config.fillRoof then
+            table.insert(dirs, "down")
+        end
     end
     return dirs
 end
 
 function Miner:fillWallsIfNeeded(pos, dim)
-    if not self.config.fillWalls then
+    local shouldFill = self.config.fillWalls or self.config.fillRoof or self.config.fillFloor
+    if not shouldFill then
         return
     end
+
     local dirs = self:getWallDirections(pos, dim)
     local rot = self.turtle:getRotation()
     for _, dir in ipairs(dirs) do
@@ -166,7 +183,9 @@ function Miner:dig(xSize, ySize, zSize)
             z = self.turtle.currentPosition.z
         }
         self:fillWallsIfNeeded(pos, dim)
-        if not self.config.fillWalls then
+
+        local shouldFill = self.config.fillWalls or self.config.fillRoof or self.config.fillFloor
+        if not shouldFill then
             local dirs = self:getWallDirections(pos, dim)
             if not utils.contains(dirs, "up") then
                 self.turtle:digUp()
@@ -181,7 +200,7 @@ function Miner:dig(xSize, ySize, zSize)
         local y = 1
         while y <= dim.y do
             self:log("Excavating layer Y =", self.turtle.currentPosition.y)
-            if (isAtYBorder() and math.abs(dim.y) > 2 and not self.config.fillWalls) then
+            if (isAtYBorder() and math.abs(dim.y) > 2 and not (self.config.fillWalls or self.config.fillRoof or self.config.fillFloor)) then
                 self.turtle:move(0, 1 * yDir, 0)
                 y = y + 1
             end
@@ -222,7 +241,7 @@ function Miner:dig(xSize, ySize, zSize)
             self:log("Excavating layer Z =", self.turtle.currentPosition.z)
             local y = initY
             
-            if(isAtYBorder() and math.abs(dim.y) > 2 and not self.config.fillWalls) then
+            if(isAtYBorder() and math.abs(dim.y) > 2 and not (self.config.fillWalls or self.config.fillRoof or self.config.fillFloor)) then
                 self.turtle:move(0, 1 * yDir, 0)
                 y = y + 1
                 initY = 2
